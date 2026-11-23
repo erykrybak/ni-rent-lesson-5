@@ -3,13 +3,13 @@ from src.models import Apartment, Bill, Parameters, Tenant, Transfer
 
 class Manager:
     def __init__(self, parameters: Parameters):
-        self.parameters = parameters 
+        self.parameters = parameters
 
         self.apartments = {}
         self.tenants = {}
         self.transfers = []
         self.bills = []
-       
+
         self.load_data()
 
     def load_data(self):
@@ -23,3 +23,18 @@ class Manager:
             if tenant.apartment not in self.apartments:
                 return False
         return True
+
+    def get_apartment_costs(self, apartment_key, year, month):
+        if apartment_key not in self.apartments:
+            raise ValueError(f"Apartment '{apartment_key}' does not exist")
+
+        total = 0.0
+        for bill in self.bills:
+            if bill.apartment != apartment_key:
+                continue
+            if bill.settlement_year != year:
+                continue
+            if bill.settlement_month != month:
+                continue
+            total += bill.amount_pln
+        return total

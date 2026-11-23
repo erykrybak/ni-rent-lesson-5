@@ -1,15 +1,23 @@
-from src.models import Apartment, Bill, Parameters, Tenant, Transfer
+from src.models import (
+    Apartment,
+    ApartmentSettlement,
+    Bill,
+    Parameters,
+    Tenant,
+    TenantSettlement,
+    Transfer,
+)
 
 
 class Manager:
     def __init__(self, parameters: Parameters):
-        self.parameters = parameters 
+        self.parameters = parameters
 
         self.apartments = {}
         self.tenants = {}
         self.transfers = []
         self.bills = []
-       
+
         self.load_data()
 
     def load_data(self):
@@ -42,3 +50,28 @@ class Manager:
                 continue
             total += bill.amount_pln
         return total
+
+    def create_apartment_settlement(self, apartment_key, year, month):
+        if apartment_key not in self.apartments:
+            return None
+
+        total_rent = 0.0
+        total_bills = 0.0
+        for bill in self.bills:
+            if bill.apartment != apartment_key:
+                continue
+            if bill.settlement_year != year or bill.settlement_month != month:
+                continue
+            if bill.type == "rent":
+                total_rent += bill.amount_pln
+            else:
+                total_bills += bill.amount_pln
+
+        return ApartmentSettlement(
+            apartment=apartment_key,
+            month=month,
+            year=year,
+            total_rent_pln=total_rent,
+            total_bills_pln=total_bills,
+            total_due_pln=total_rent + total_bills,
+        )

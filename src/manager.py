@@ -75,3 +75,32 @@ class Manager:
             total_bills_pln=total_bills,
             total_due_pln=total_rent + total_bills,
         )
+
+    def create_tenant_settlements(self, apartment_settlement):
+        tenant_keys = []
+        for key, tenant in self.tenants.items():
+            if tenant.apartment == apartment_settlement.apartment:
+                tenant_keys.append(key)
+
+        settlements = []
+        if len(tenant_keys) == 0:
+            return settlements
+
+        count = len(tenant_keys)
+        for key in tenant_keys:
+            rent_share = apartment_settlement.total_rent_pln / count
+            bills_share = apartment_settlement.total_bills_pln / count
+            total_due = rent_share + bills_share
+            settlements.append(
+                TenantSettlement(
+                    tenant=key,
+                    apartment_settlement=apartment_settlement.apartment,
+                    month=apartment_settlement.month,
+                    year=apartment_settlement.year,
+                    rent_pln=rent_share,
+                    bills_pln=bills_share,
+                    total_due_pln=total_due,
+                    balance_pln=-total_due,
+                )
+            )
+        return settlements
